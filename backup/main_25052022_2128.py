@@ -38,7 +38,7 @@ current_day = datetime.today().weekday()
 
 # выгрузка БД с расписанием
 raspisanie = []
-with open('raspisanie_done.csv', 'r') as url:
+with open('../raspisanie_done.csv', 'r') as url:
     for line in url:
         raspisanie.append(line.strip().split(';'))
 
@@ -48,7 +48,7 @@ for i in range(len(raspisanie)):
 
 # выгрузка БД с сотрудниками
 sotrudniki = []
-with open('sotrudniki.csv', 'r') as url:
+with open('../sotrudniki.csv', 'r') as url:
     for line in url:
         sotrudniki.append(line.strip().split(';'))
 
@@ -362,7 +362,7 @@ class MainWindow(QMainWindow):
 
     def bolnichniyExcelLoad(self):
         # получение данных из файла со списком больничных листов
-        load_bolnichniy_file = 'test.xlsx'
+        load_bolnichniy_file = '../test.xlsx'
         bolnichnie_data = pd.read_excel(load_bolnichniy_file, 'Учет больничных листов')
         bolnichnie_data.fillna('', inplace=True)
 
@@ -378,7 +378,7 @@ class MainWindow(QMainWindow):
 
     def zameniExcelLoad(self):
         # получение данных из файла со списком больничных листов
-        load_zameni_file = 'zameni.xlsx'
+        load_zameni_file = '../zameni.xlsx'
         zameni_data = pd.read_excel(load_zameni_file, 'Замены')
         zameni_data.fillna('', inplace=True)
 
@@ -814,7 +814,7 @@ class zamena_add_window(QWidget):
         zamena_add_window.close(self)
 
 app = QApplication(sys.argv)
-app.setWindowIcon(QtGui.QIcon('icon.png'))
+app.setWindowIcon(QtGui.QIcon('../icon.png'))
 
 mainWindowW = 1300
 mainWindowH = 600
