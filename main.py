@@ -5,7 +5,7 @@ from PyQt6 import QtGui, QtCore, QtWidgets
 from PyQt6.QtCore import QDate, Qt
 from PyQt6.QtWidgets import (QApplication, QLabel, QMainWindow, QVBoxLayout, QListView, QListWidget,
                              QPushButton, QTabWidget, QWidget, QLineEdit, QComboBox, QDateEdit, QTableWidget,
-                             QTableWidgetItem)
+                             QTableWidgetItem, QHeaderView)
 
 from openpyxl import load_workbook
 from openpyxl.styles import Alignment
@@ -70,11 +70,13 @@ class MainWindow(QMainWindow):
         self.tab2 = QWidget()
         self.tab3 = QWidget()
         self.tab4 = QWidget()
+        self.tab5 = QWidget()
         self.tabs.setMovable(True)
         self.tabs.addTab(self.tab1, 'Создание больничного листа')
         self.tabs.addTab(self.tab2, 'Создание замены')
         self.tabs.addTab(self.tab3, 'Журнал больничных листов')
         self.tabs.addTab(self.tab4, 'Журнал замен')
+        self.tabs.addTab(self.tab5, 'ЖОПА С ТАБЛИЦЕЙ')
         self.setCentralWidget(self.tabs)
 
     ###################################################################################
@@ -312,6 +314,7 @@ class MainWindow(QMainWindow):
 
         self.bolnichniy_table = QtWidgets.QTableWidget(self.tab3)
         self.bolnichniy_table.setGeometry(30, 30, mainWindowW - 60, mainWindowH - 120)
+        self.bolnichniy_table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode(1))
 
         self.bolnichniy_table_update = QPushButton(self.tab3)
         self.bolnichniy_table_update.setText("Обновить данные")
@@ -326,11 +329,12 @@ class MainWindow(QMainWindow):
         # отслеживание нажатия на вкладку больничного листа
         self.tabs.currentChanged.connect(self.currentTabNumber)
 
-        self.zameni_table = QtWidgets.QTableView(self.tab4)
+        self.zameni_table = QtWidgets.QTableWidget(self.tab4)
         self.zameni_table.setGeometry(30, 30, mainWindowW - 60, mainWindowH - 120)
+        self.zameni_table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode(1))
+        #self.zameni_table.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeMode(3))
 
-        self.zameni_table.horizontalHeader().resizeSection(1, 50)
-        #self.zameni_table.
+
 
 
         self.zameni_table_update = QPushButton(self.tab4)
