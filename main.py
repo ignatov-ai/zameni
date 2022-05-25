@@ -77,9 +77,9 @@ class MainWindow(QMainWindow):
         self.tabs.addTab(self.tab4, 'Журнал замен')
         self.setCentralWidget(self.tabs)
 
-        ###################################################################################
-        ######################### ВКЛАДКА СОЗДАНИЯ БОЛЬНИЧНОГО ЛИСТА ######################
-        ###################################################################################
+    ###################################################################################
+    ######################### ВКЛАДКА СОЗДАНИЯ БОЛЬНИЧНОГО ЛИСТА ######################
+    ###################################################################################
 
         # поле поиска и выбора учителя
         lbl_find = QLabel(self.tab1)
@@ -132,9 +132,9 @@ class MainWindow(QMainWindow):
         cancelButton.move(200, 220)
         cancelButton.setFixedWidth(100)
 
-        ###################################################################################
-        ############################## ВКЛАДКА СОЗДАНИЯ ЗАМЕНЫ ############################
-        ###################################################################################
+    ###################################################################################
+    ############################## ВКЛАДКА СОЗДАНИЯ ЗАМЕНЫ ############################
+    ###################################################################################
 
         # выбор учителя для замены
         lbl_find_2 = QLabel(self.tab2)
@@ -303,9 +303,9 @@ class MainWindow(QMainWindow):
         self.les_zamena_add_btn_10.setEnabled(False)
         self.les_zamena_add_btn_10.clicked.connect(lambda ch, num=10: self.zamena_add_form(num))
 
-        ###################################################################################
-        ##################### ВКЛАДКА ВЫВОДА ЖУРНАЛА БОЛЬНИЧНЫХ ЛИСТОВ ####################
-        ###################################################################################
+    ###################################################################################
+    ##################### ВКЛАДКА ВЫВОДА ЖУРНАЛА БОЛЬНИЧНЫХ ЛИСТОВ ####################
+    ###################################################################################
 
         # отслеживание нажатия на вкладку больничного листа или листа с заменами
         self.tabs.currentChanged.connect(self.currentTabNumber)
@@ -315,29 +315,33 @@ class MainWindow(QMainWindow):
 
         self.bolnichniy_table_update = QPushButton(self.tab3)
         self.bolnichniy_table_update.setText("Обновить данные")
-        self.bolnichniy_table_update.move(330, 530)
+        self.bolnichniy_table_update.move(mainWindowW//2-self.bolnichniy_table_update.width()//2, mainWindowH - 70)
         self.bolnichniy_table_update.setFixedWidth(120)
         self.bolnichniy_table_update.clicked.connect(self.bolnichniyExcelLoad)
 
-        ###################################################################################
-        ########################### ВКЛАДКА ВЫВОДА ЖУРНАЛА ЗАМЕН ##########################
-        ###################################################################################
+    ###################################################################################
+    ########################### ВКЛАДКА ВЫВОДА ЖУРНАЛА ЗАМЕН ##########################
+    ###################################################################################
 
         # отслеживание нажатия на вкладку больничного листа
         self.tabs.currentChanged.connect(self.currentTabNumber)
 
-        self.zameni_table = QtWidgets.QTableWidget(self.tab4)
+        self.zameni_table = QtWidgets.QTableView(self.tab4)
         self.zameni_table.setGeometry(30, 30, mainWindowW - 60, mainWindowH - 120)
+
+        self.zameni_table.horizontalHeader().resizeSection(1, 50)
+        #self.zameni_table.
+
 
         self.zameni_table_update = QPushButton(self.tab4)
         self.zameni_table_update.setText("Обновить данные")
-        self.zameni_table_update.move(330, 530)
+        self.zameni_table_update.move(mainWindowW//2-self.zameni_table_update.width()//2, mainWindowH - 70)
         self.zameni_table_update.setFixedWidth(120)
         self.zameni_table_update.clicked.connect(self.zameniExcelLoad)
 
-        ###################################################################################
-        ######################## ИСПОЛЬЗУЕМЫЕ ФУНКЦИИ И ПРОЦЕДУРЫ #########################
-        ###################################################################################
+    ###################################################################################
+    ######################## ИСПОЛЬЗУЕМЫЕ ФУНКЦИИ И ПРОЦЕДУРЫ #########################
+    ###################################################################################
 
     def bolnichniyExcelLoad(self):
         # получение данных из файла со списком больничных листов
@@ -799,6 +803,9 @@ mainWindowW = 1300
 mainWindowH = 600
 
 window = MainWindow()
+windowW = window.frameSize().width()
+windowH = window.frameSize().height()
+print(windowW, windowH)
 window.setGeometry((int(1920/1.25)-mainWindowW)//2, (int(1200/1.25)-mainWindowH)//2, mainWindowW, mainWindowH)
 window.setWindowTitle('Составитель замен. Текущая дата: ' + today)
 window.show()
