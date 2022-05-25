@@ -330,55 +330,61 @@ class MainWindow(QMainWindow):
     ##################### ВКЛАДКА ВЫВОДА ЖУРНАЛА БОЛЬНИЧНЫХ ЛИСТОВ ####################
     ###################################################################################
 
+        frame_tab3 = QFrame(self.tab3)
+        frame_tab3.setFixedWidth(1270)
+        frame_tab3.setFixedHeight(550)
+        frame_tab3.move(mainWindowW // 2 - frame_tab3.width() // 2, 11)
+        frame_tab3.setFrameStyle(QFrame.Shape.StyledPanel)
+        frame_tab3.setStyleSheet('background-color: white;')
+
         # выбор даты начала фильтра
-        lbl_filtr_bolnishniy_dateStart = QLabel(self.tab3)
+        lbl_filtr_bolnishniy_dateStart = QLabel(frame_tab3)
         lbl_filtr_bolnishniy_dateStart.setText('Начало: ')
-        lbl_filtr_bolnishniy_dateStart.move(30, 32)
+        lbl_filtr_bolnishniy_dateStart.move(30, 22)
         lbl_filtr_bolnishniy_dateStart.setFixedWidth(70)
 
-        self.filtr_bolnishniy_dateStart = QDateEdit(self.tab3, calendarPopup=True)
-        self.filtr_bolnishniy_dateStart.move(80, 30)
+        self.filtr_bolnishniy_dateStart = QDateEdit(frame_tab3, calendarPopup=True)
+        self.filtr_bolnishniy_dateStart.move(80, 20)
         self.filtr_bolnishniy_dateStart.setFixedWidth(100)
         self.filtr_bolnishniy_dateStart.setDate(QDate.currentDate())
 
         # выбор даты окончания фильтра
-        lbl_filtr_bolnishniy_dateEnd = QLabel(self.tab3)
-        lbl_filtr_bolnishniy_dateEnd.move(230, 32)
+        lbl_filtr_bolnishniy_dateEnd = QLabel(frame_tab3)
+        lbl_filtr_bolnishniy_dateEnd.move(230, 22)
         lbl_filtr_bolnishniy_dateEnd.setText('Окончание: ')
         lbl_filtr_bolnishniy_dateEnd.setFixedWidth(70)
 
-        self.filtr_bolnishniy_dateEnd = QDateEdit(self.tab3, calendarPopup=True)
-        self.filtr_bolnishniy_dateEnd.move(300, 30)
+        self.filtr_bolnishniy_dateEnd = QDateEdit(frame_tab3, calendarPopup=True)
+        self.filtr_bolnishniy_dateEnd.move(300, 20)
         self.filtr_bolnishniy_dateEnd.setFixedWidth(100)
         self.filtr_bolnishniy_dateEnd.setDate(QDate.currentDate())
 
         # кнопка применения фильтра
-        okButton = QPushButton(self.tab3)
-        okButton.setText("Применить фильтр")
-        okButton.move(550, 29)
-        okButton.setFixedWidth(150)
-        okButton.clicked.connect(self.filtr_bolnichniy_apply)
-
+        btn_filtr_bolnishniy_apply = QPushButton(frame_tab3)
+        btn_filtr_bolnishniy_apply.setText("Применить фильтр")
+        btn_filtr_bolnishniy_apply.move(550, 19)
+        btn_filtr_bolnishniy_apply.setFixedWidth(150)
+        btn_filtr_bolnishniy_apply.clicked.connect(self.filtr_bolnichniy_apply)
 
         # кнопка сброса фильтра
-        okButton = QPushButton(self.tab3)
-        okButton.setText("Сбросить фильтр")
-        okButton.move(750, 29)
-        okButton.setFixedWidth(150)
-        okButton.clicked.connect(self.bolnichniyExcelLoad)
+        btn_filtr_bolnishniy_clear = QPushButton(frame_tab3)
+        btn_filtr_bolnishniy_clear.setText("Сбросить фильтр")
+        btn_filtr_bolnishniy_clear.move(750, 19)
+        btn_filtr_bolnishniy_clear.setFixedWidth(150)
+        btn_filtr_bolnishniy_clear.clicked.connect(self.bolnichniyExcelLoad)
 
         # отслеживание нажатия на вкладку больничного листа или листа с заменами
         self.tabs.currentChanged.connect(self.currentTabNumber)
 
-        self.bolnichniy_table = QtWidgets.QTableWidget(self.tab3)
-        self.bolnichniy_table.setGeometry(30, 90, mainWindowW - 60, mainWindowH - 180)
+        self.bolnichniy_table = QtWidgets.QTableWidget(frame_tab3)
+        self.bolnichniy_table.setGeometry(20, 70, mainWindowW - 60, mainWindowH - 180)
         self.bolnichniy_table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode(1))
         self.bolnichniy_table.setFrameStyle(QTableWidget.Shape.NoFrame)
         self.bolnichniy_table.setStyleSheet('')
 
-        self.bolnichniy_table_update = QPushButton(self.tab3)
+        self.bolnichniy_table_update = QPushButton(frame_tab3)
         self.bolnichniy_table_update.setText("Обновить данные")
-        self.bolnichniy_table_update.move(mainWindowW//2-self.bolnichniy_table_update.width()//2, mainWindowH - 70)
+        self.bolnichniy_table_update.move(mainWindowW//2-self.bolnichniy_table_update.width()//2, 510)
         self.bolnichniy_table_update.setFixedWidth(120)
         self.bolnichniy_table_update.clicked.connect(self.bolnichniyExcelLoad)
 
