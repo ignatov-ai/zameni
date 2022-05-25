@@ -331,10 +331,7 @@ class MainWindow(QMainWindow):
 
         self.zameni_table = QtWidgets.QTableWidget(self.tab4)
         self.zameni_table.setGeometry(30, 30, mainWindowW - 60, mainWindowH - 120)
-        self.zameni_table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode(1))
-        #self.zameni_table.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeMode(3))
-
-
+        self.zameni_table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode(3))
 
 
         self.zameni_table_update = QPushButton(self.tab4)
