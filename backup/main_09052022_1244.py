@@ -3,7 +3,7 @@ from datetime import datetime
 
 from PyQt6 import QtGui
 from PyQt6.QtCore import QDate
-from PyQt6.QtWidgets import (QApplication, QLabel, QMainWindow, QVBoxLayout,
+from PyQt6.QtWidgets import (QApplication, QLabel, QMainWindow,
                              QPushButton, QTabWidget, QWidget, QLineEdit, QComboBox, QDateEdit)
 
 from openpyxl import load_workbook
@@ -40,19 +40,27 @@ if day < 10:
 month = datetime.now().month
 if month < 10:
     month = str('0') + str(month)
-today = str(day) + '.' + str(month) + '.' + str(datetime.now().year)
+today = day + '.' + month + '.' + str(datetime.now().year)
 print(today)
 current_day = datetime.today().weekday()
 
 # выгрузка БД с расписанием
 raspisanie = []
-with open('raspisanie_done.csv', 'r') as url:
+with open('../raspisanie_done.csv', 'r') as url:
     for line in url:
         raspisanie.append(line.strip().split(';'))
 
+'''
+for j in range(len(raspisanie)):
+    print(raspisanie[j][0] + '. ' + raspisanie[j][1] +' '+ raspisanie[j][2] + ' ', end='')
+    for i in range(3+current_day*10, 3+(current_day+1)*10):
+        print(str(i-2-current_day*10) + '. '+raspisanie[j][i]+' | ', end='')
+    print()
+'''
+
 # выгрузка БД с сотрудниками
 sotrudniki = []
-with open('sotrudniki.csv', 'r') as url:
+with open('../sotrudniki.csv', 'r') as url:
     for line in url:
         sotrudniki.append(line.strip().split(';'))
 
@@ -60,11 +68,6 @@ sotrudniki_fio = []
 for i in range(len(sotrudniki)):
     s = sotrudniki[i][3] + '. ' + sotrudniki[i][0] + ' ' + sotrudniki[i][1] + ' ' + sotrudniki[i][2]
     sotrudniki_fio.append(s)
-
-class zamenaAddBtn(QPushButton):
-    def __init__(self):
-        QPushButton.__init__(self)
-        self.setStyleSheet("background-color: rgb(255,255,255);")
 
 
 class MainWindow(QMainWindow):
@@ -74,15 +77,15 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("Вкладки для замен")
 
         self.tabs = QTabWidget()
-        self.tab1 = QWidget()
+        tab1 = QWidget()
         tab2 = QWidget()
-        self.tab3 = QWidget()
-        self.tab4 = QWidget()
+        tab3 = QWidget()
+        tab4 = QWidget()
         self.tabs.setMovable(True)
-        self.tabs.addTab(self.tab1, 'Создание больничного листа')
+        self.tabs.addTab(tab1, 'Создание больничного листа')
         self.tabs.addTab(tab2, 'Создание замены')
-        self.tabs.addTab(self.tab3, 'Журнал больничных листов')
-        self.tabs.addTab(self.tab4, 'Журнал замен')
+        self.tabs.addTab(tab3, 'Журнал больничных листов')
+        self.tabs.addTab(tab4, 'Журнал замен')
         self.setCentralWidget(self.tabs)
 
         ###################################################################################
@@ -90,52 +93,52 @@ class MainWindow(QMainWindow):
         ###################################################################################
 
         # поле поиска и выбора учителя
-        lbl_find = QLabel(self.tab1)
+        lbl_find = QLabel(tab1)
         lbl_find.setText('Поиск: ')
         lbl_find.move(30, 60)
         lbl_find.setFixedWidth(70)
 
-        teach_find = QLineEdit(self.tab1)
+        teach_find = QLineEdit(tab1)
         teach_find.setFocus()
         teach_find.textChanged.connect(self.teachFind)
         teach_find.move(100, 60)
         teach_find.setFixedWidth(200)
 
-        self.teach_select = QComboBox(self.tab1)
+        self.teach_select = QComboBox(tab1)
         self.teach_select.move(30, 100)
         self.teach_select.addItems(sotrudniki_fio)
         self.teach_select.setFixedWidth(270)
         self.teach_select.currentIndex()
 
         # выбор даты начала замены
-        self.zamena_dateStart = QDateEdit(self.tab1, calendarPopup=True)
+        self.zamena_dateStart = QDateEdit(tab1, calendarPopup=True)
         self.zamena_dateStart.move(100, 140)
         self.zamena_dateStart.setFixedWidth(200)
         self.zamena_dateStart.setDate(QDate.currentDate())
 
-        lbl_zamenaStart = QLabel(self.tab1)
+        lbl_zamenaStart = QLabel(tab1)
         lbl_zamenaStart.setText('Начало: ')
         lbl_zamenaStart.move(30, 142)
         lbl_zamenaStart.setFixedWidth(70)
 
         # выбор даты окончания замены
-        self.zamena_dateEnd = QDateEdit(self.tab1, calendarPopup=True)
+        self.zamena_dateEnd = QDateEdit(tab1, calendarPopup=True)
         self.zamena_dateEnd.move(100, 180)
         self.zamena_dateEnd.setFixedWidth(200)
         self.zamena_dateEnd.setDate(QDate.currentDate())
 
-        lbl_zamenaEnd = QLabel(self.tab1)
+        lbl_zamenaEnd = QLabel(tab1)
         lbl_zamenaEnd.move(30, 182)
         lbl_zamenaEnd.setText('Окончание: ')
         lbl_zamenaEnd.setFixedWidth(70)
 
         # кнопки отмены и добавления замены в журнал
-        okButton = QPushButton(self.tab1)
+        okButton = QPushButton(tab1)
         okButton.setText("Добавить")
         okButton.move(30, 220)
         okButton.setFixedWidth(100)
         okButton.clicked.connect(self.bolnichniy_add)
-        cancelButton = QPushButton(self.tab1)
+        cancelButton = QPushButton(tab1)
         cancelButton.setText("Назад")
         cancelButton.move(200, 220)
         cancelButton.setFixedWidth(100)
@@ -200,9 +203,8 @@ class MainWindow(QMainWindow):
         zamenaButton.setText("Построить замены для выбранной даты")
         zamenaButton.move(30, 260)
         zamenaButton.setFixedWidth(320)
-        zamenaButton.clicked.connect(lambda ch, tab = tab2: self.zamena_lessons_build(tab))
+        zamenaButton.clicked.connect(self.zamena_add_form)
 
-        '''
         # построение списка уроков заменяемого учителя
         self.les_1 = '----------'
         self.les_2 = '----------'
@@ -220,59 +222,120 @@ class MainWindow(QMainWindow):
         self.lbl_les_1_label.move(440, 62)
         self.lbl_les_1_label.setFixedWidth(200)
 
+        les_1_zamena_add = QPushButton(tab2)
+        les_1_zamena_add.setText("Добавить замену")
+        les_1_zamena_add.move(650, 60)
+        les_1_zamena_add.setFixedWidth(120)
+        les_1_zamena_add.setEnabled(True)
+        les_1_zamena_add.clicked.connect(lambda ch, i = 1: self.zamena_add_form(i))
+
         self.lbl_les_2_label = QLabel(tab2)
         self.lbl_les_2_label.setText('2.     ' + self.les_2)
         self.lbl_les_2_label.move(440, 92)
         self.lbl_les_2_label.setFixedWidth(200)
+
+        les_2_zamena_add = QPushButton(tab2)
+        les_2_zamena_add.setText("Добавить замену")
+        les_2_zamena_add.move(650, 90)
+        les_2_zamena_add.setFixedWidth(120)
+        les_2_zamena_add.setEnabled(False)
+        les_2_zamena_add.clicked.connect(self.zamena_add_form)
 
         self.lbl_les_3_label = QLabel(tab2)
         self.lbl_les_3_label.setText('3.     ' + self.les_3)
         self.lbl_les_3_label.move(440, 122)
         self.lbl_les_3_label.setFixedWidth(200)
 
+        les_3_zamena_add = QPushButton(tab2)
+        les_3_zamena_add.setText("Добавить замену")
+        les_3_zamena_add.move(650, 120)
+        les_3_zamena_add.setFixedWidth(120)
+        les_3_zamena_add.setEnabled(False)
+        les_3_zamena_add.clicked.connect(self.zamena_add_form)
+
         self.lbl_les_4_label = QLabel(tab2)
         self.lbl_les_4_label.setText('4.     ' + self.les_4)
         self.lbl_les_4_label.move(440, 152)
         self.lbl_les_4_label.setFixedWidth(200)
+
+        les_4_zamena_add = QPushButton(tab2)
+        les_4_zamena_add.setText("Добавить замену")
+        les_4_zamena_add.move(650, 150)
+        les_4_zamena_add.setFixedWidth(120)
+        les_4_zamena_add.setEnabled(False)
+        les_4_zamena_add.clicked.connect(self.zamena_add_form)
 
         self.lbl_les_5_label = QLabel(tab2)
         self.lbl_les_5_label.setText('5.     ' + self.les_5)
         self.lbl_les_5_label.move(440, 182)
         self.lbl_les_5_label.setFixedWidth(200)
 
+        les_5_zamena_add = QPushButton(tab2)
+        les_5_zamena_add.setText("Добавить замену")
+        les_5_zamena_add.move(650, 180)
+        les_5_zamena_add.setFixedWidth(120)
+        les_5_zamena_add.setEnabled(False)
+        les_5_zamena_add.clicked.connect(self.zamena_add_form)
+
         self.lbl_les_6_label = QLabel(tab2)
         self.lbl_les_6_label.setText('6.     ' + self.les_6)
         self.lbl_les_6_label.move(440, 212)
         self.lbl_les_6_label.setFixedWidth(200)
+
+        les_6_zamena_add = QPushButton(tab2)
+        les_6_zamena_add.setText("Добавить замену")
+        les_6_zamena_add.move(650, 210)
+        les_6_zamena_add.setFixedWidth(120)
+        les_6_zamena_add.setEnabled(False)
+        les_6_zamena_add.clicked.connect(self.zamena_add_form)
 
         self.lbl_les_7_label = QLabel(tab2)
         self.lbl_les_7_label.setText('7.     ' + self.les_7)
         self.lbl_les_7_label.move(440, 242)
         self.lbl_les_7_label.setFixedWidth(200)
 
+        les_7_zamena_add = QPushButton(tab2)
+        les_7_zamena_add.setText("Добавить замену")
+        les_7_zamena_add.move(650, 240)
+        les_7_zamena_add.setFixedWidth(120)
+        les_7_zamena_add.setEnabled(False)
+        les_7_zamena_add.clicked.connect(self.zamena_add_form)
+
         self.lbl_les_8_label = QLabel(tab2)
         self.lbl_les_8_label.setText('8.     ' + self.les_8)
         self.lbl_les_8_label.move(440, 272)
         self.lbl_les_8_label.setFixedWidth(200)
+
+        les_8_zamena_add = QPushButton(tab2)
+        les_8_zamena_add.setText("Добавить замену")
+        les_8_zamena_add.move(650, 270)
+        les_8_zamena_add.setFixedWidth(120)
+        les_8_zamena_add.setEnabled(False)
+        les_8_zamena_add.clicked.connect(self.zamena_add_form)
 
         self.lbl_les_9_label = QLabel(tab2)
         self.lbl_les_9_label.setText('9.     ' + self.les_9)
         self.lbl_les_9_label.move(440, 302)
         self.lbl_les_9_label.setFixedWidth(200)
 
+        les_9_zamena_add = QPushButton(tab2)
+        les_9_zamena_add.setText("Добавить замену")
+        les_9_zamena_add.move(650, 300)
+        les_9_zamena_add.setFixedWidth(120)
+        les_9_zamena_add.setEnabled(False)
+        les_9_zamena_add.clicked.connect(self.zamena_add_form)
+
         self.lbl_les_10_label = QLabel(tab2)
         self.lbl_les_10_label.setText('10.   ' + self.les_10)
         self.lbl_les_10_label.move(440, 332)
         self.lbl_les_10_label.setFixedWidth(200)
 
-        for i in range (10):
-            self.les_zamena_add = QPushButton(tab2)
-            self.les_zamena_add.setText("Добавить замену")
-            self.les_zamena_add.move(650, 60 + i*30)
-            self.les_zamena_add.setFixedWidth(120)
-            self.les_zamena_add.setEnabled(False)
-            self.les_zamena_add.clicked.connect(lambda ch, num = i + 1: self.zamena_add_form(num))
-        '''
+        les_10_zamena_add = QPushButton(tab2)
+        les_10_zamena_add.setText("Добавить замену")
+        les_10_zamena_add.move(650, 330)
+        les_10_zamena_add.setFixedWidth(120)
+        les_10_zamena_add.setEnabled(False)
+        les_10_zamena_add.clicked.connect(self.zamena_add_form)
 
     # вывод в выпадающий список учителей по фильтру из поля поиска
     def teachFind(self, text):
@@ -337,50 +400,8 @@ class MainWindow(QMainWindow):
         self.lbl_teach_select_2.setText(selected_fio_text)
         return selected_fio_text[6:]
 
-    def zamena_lessons_build(self,tab2):
-        day, month, year = (int(x) for x in self.zamena_select_2.text().split('.'))
-        sel_date = datetime.weekday(datetime(year, month, day))
-        sel_teach = self.teach_select_2.currentText()[:4]
-
-        for teach_id in range(len(sotrudniki)):
-            if raspisanie[teach_id][0] == sel_teach:
-                break
-
-        for sotr_teach_id in range(len(sotrudniki)):
-            if sotrudniki[sotr_teach_id][3] == sel_teach:
-                break
-        print('Индекс выбранного учителя в массиве сотрудников:', teach_id)
-
-        zamadd_layout = QVBoxLayout()
-        zamadd_layout.setContentsMargins(450,50,30,160)
-
-        self.les_zamena_add_buttons = [zamenaAddBtn() for i in range(10)]
-        for i, button in enumerate(self.les_zamena_add_buttons):
-            button.clicked.connect(lambda ch, num=i + 1: self.zamena_add_form(num))
-
-            button.setFixedWidth(200)
-            button.move(300,60)
-            print(raspisanie[teach_id][i+ 4 + sel_date * 10])
-            if raspisanie[teach_id][i+ 4 + sel_date * 10] == '-':
-                button.setText('Нет урока для замены')
-                button.setEnabled(False)
-                print('Кнопка НЕ работает')
-            else:
-                button.setText('Добавить замену для:  ' + raspisanie[teach_id][i + 4 + sel_date * 10])
-                button.setEnabled(True)
-                print('Кнопка работает')
-            zamadd_layout.addWidget(button)
-        tab2.setLayout(zamadd_layout)
-
-
-        for i in range(4 + sel_date * 10, 4 + (sel_date + 1) * 10):
-            print(str(i - 3 - sel_date * 10) + '. ' + raspisanie[teach_id][i] + ' | ', end='')
-
-            self.lbl_les_1_label = QLabel(tab2)
-            self.lbl_les_1_label.setText(str(i - 3 - sel_date * 10) + '.     ' + raspisanie[teach_id][i])
-            self.lbl_les_1_label.move(440, 62 + i * 30)
-            self.lbl_les_1_label.setFixedWidth(200)
-
+    def zamena_lessons_build(self):
+        pass
 
     def zamena_add_form(self, i):
         num_les = i
@@ -404,8 +425,8 @@ class MainWindow(QMainWindow):
 
             # вывод заменяемого учителя и расписание его уроков на этот день
             sel_teach_num_les = []
-            #print(raspisanie[teach_id][0] + '. ' + raspisanie[teach_id][1] + ' '
-            #+ raspisanie[teach_id][2] + ' ', end='')
+            # print(raspisanie[teach_id][0] + '. ' + raspisanie[teach_id][1] + ' '
+            # + raspisanie[teach_id][2] + ' ', end='')
             for i in range(4 + sel_date * 10, 4 + (sel_date + 1) * 10):
                 # print(str(i - 3 - sel_date * 10) + '. ' + raspisanie[teach_id][i] + ' | ', end='')
                 if raspisanie[teach_id][i] != '-':
@@ -653,7 +674,7 @@ class zamena_add_window(QWidget):
         zamena_add_window.close(self)
 
 app = QApplication(sys.argv)
-app.setWindowIcon(QtGui.QIcon('icon.png'))
+app.setWindowIcon(QtGui.QIcon('../icon.png'))
 
 window = MainWindow()
 window.setGeometry(400, 200, 800, 600)

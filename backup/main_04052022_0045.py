@@ -46,7 +46,7 @@ current_day = datetime.today().weekday()
 
 # выгрузка БД с расписанием
 raspisanie = []
-with open('raspisanie_done.csv', 'r') as url:
+with open('../raspisanie_done.csv', 'r') as url:
     for line in url:
         raspisanie.append(line.strip().split(';'))
 
@@ -60,7 +60,7 @@ for j in range(len(raspisanie)):
 
 # выгрузка БД с сотрудниками
 sotrudniki = []
-with open('sotrudniki.csv', 'r') as url:
+with open('../sotrudniki.csv', 'r') as url:
     for line in url:
         sotrudniki.append(line.strip().split(';'))
 
@@ -68,6 +68,7 @@ sotrudniki_fio = []
 for i in range(len(sotrudniki)):
     s = sotrudniki[i][3] + '. ' + sotrudniki[i][0] + ' ' + sotrudniki[i][1] + ' ' + sotrudniki[i][2]
     sotrudniki_fio.append(s)
+
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -271,87 +272,54 @@ class MainWindow(QMainWindow):
         day, month, year = (int(x) for x in self.zamena_select_2.text().split('.'))
         date = datetime(year, month, day)
         sel_date = datetime.weekday(datetime(year, month, day))
-        sel_teach_all = self.teach_select_2.currentText()
         sel_teach = self.teach_select_2.currentText()[:4]
 
-        if sel_date == 6 or sel_date == 7:
-            self.lbl_zamena_s_2.setText('<p style="color: rgb(250, 55, 55);">ВЫБРАНА НЕВЕРНАЯ ДАТА</p>', )
-        else:
-            for teach_id in range(len(sotrudniki)):
-                if raspisanie[teach_id][0] == sel_teach:
-                    break
+        for teach_id in range(len(sotrudniki)):
+            if raspisanie[teach_id][0] == sel_teach:
+                break
+        # вывод заменяемого учителя и расписание его уроков на этот день
+        sel_teach_num_les = []
+        #print(raspisanie[teach_id][0] + '. ' + raspisanie[teach_id][1] + ' ' + raspisanie[teach_id][2] + ' ', end='')
+        for i in range(4 + sel_date * 10, 4 + (sel_date + 1) * 10):
+            #print(str(i - 3 - sel_date * 10) + '. ' + raspisanie[teach_id][i] + ' | ', end='')
+            if raspisanie[teach_id][i] != '-':
+                # сохранение в массив sel_teach_num_les уроков для замены (окна пропущены)
+                sel_teach_num_les.append(i)
+        #print(sel_teach_num_les)
+        #print()
+        sel_predmet = raspisanie[teach_id][2]
+        # вывод учителей ТОГО ЖЕ предмета
+        kandidati = []
+        for j in range(len(raspisanie)):
+            for i in sel_teach_num_les:
+                if raspisanie[j][2] == sel_predmet and raspisanie[j][0] != sel_teach and raspisanie[j][i] == '-':
+                    kand_temp = [str(i - 3 - sel_date * 10), raspisanie[j][0] + '. ' + raspisanie[j][1]]
+                    kandidati.append(kand_temp)
+                    # print(raspisanie[j][0]+'. '+raspisanie[j][1], end=' | ')
+            # print()
 
-            for sotr_teach_id in range(len(sotrudniki)):
-                if sotrudniki[sotr_teach_id][3] == sel_teach:
-                    break
-            print('Индекс выбранного учителя в массиве сотрудников:',sotr_teach_id)
+        # вывод учителей ОСТАЛЬНЫХ предметов
+        for j in range(len(raspisanie)):
+            for i in sel_teach_num_les:
+                if raspisanie[j][2] != sel_predmet and raspisanie[j][i] == '-':
+                    kand_temp = [str(i - 3 - sel_date * 10), raspisanie[j][0] + '. ' + raspisanie[j][1]]
+                    kandidati.append(kand_temp)
+                    # print(raspisanie[j][0]+'. '+raspisanie[j][1], end=' | ')
+            # print()
 
-            # вывод заменяемого учителя и расписание его уроков на этот день
-            sel_teach_num_les = []
-            #print(raspisanie[teach_id][0] + '. ' + raspisanie[teach_id][1] + ' ' + raspisanie[teach_id][2] + ' ', end='')
-            for i in range(4 + sel_date * 10, 4 + (sel_date + 1) * 10):
-                #print(str(i - 3 - sel_date * 10) + '. ' + raspisanie[teach_id][i] + ' | ', end='')
-                if raspisanie[teach_id][i] != '-':
-                    # сохранение в массив sel_teach_num_les уроков для замены (окна пропущены)
-                    sel_teach_num_les.append(i)
-            print('Номера уроков для замены:', *sel_teach_num_les)
-            #print()
-            self.sel_predmet = raspisanie[teach_id][2]
-            # вывод учителей ТОГО ЖЕ предмета
-            kandidati = []
-            self.send_teach_id = teach_id
+        kandidati = sorted(kandidati, key=lambda row: row[0])
+        n_lessons = 10 - raspisanie[teach_id][4 + sel_date * 10: 4 + (sel_date + 1) * 10].count('-')
+        print(n_lessons, len(kandidati))
 
-            for j in range(len(raspisanie)):
-                for i in sel_teach_num_les:
-                    if raspisanie[j][2] == self.sel_predmet and raspisanie[j][0] != sel_teach and raspisanie[j][i] == '-':
-                        kand_temp = str(i - 3 - sel_date * 10) +';'+ str(raspisanie[j][0]) +';'+ str(raspisanie[j][1]) +';'+ str(raspisanie[teach_id][i])
-                        kandidati.append(kand_temp)
-                        # print(raspisanie[j][0]+'. '+raspisanie[j][1], end=' | ')
-                # print()
-
-            # вывод учителей ОСТАЛЬНЫХ предметов
-            for j in range(len(raspisanie)):
-                for i in sel_teach_num_les:
-                    if raspisanie[j][2] != self.sel_predmet and raspisanie[j][i] == '-':
-                        kand_temp = str(i - 3 - sel_date * 10) +';'+ str(raspisanie[j][0]) +';'+ str(raspisanie[j][1]) +';'+ str(raspisanie[teach_id][i])
-                        kandidati.append(kand_temp)
-                        # print(raspisanie[j][0]+'. '+raspisanie[j][1], end=' | ')
-                # print()
-            #print(kandidati)
-
-            kandidati = sorted(kandidati, key=lambda row: row[0])
-            n_lessons = 10 - raspisanie[teach_id][4 + sel_date * 10: 4 + (sel_date + 1) * 10].count('-')
-            print('Количество заменяемых уроков:',n_lessons)
-            print('Количество кандидатов для замены ВСЕХ уроков:', len(kandidati))
-
-            num_les = 6
-            self.win_zamena = zamena_add_window(teach_id, num_les, sel_teach_all, kandidati, date, sel_date, self.sel_predmet)
-            self.win_zamena.show()
+        num_les = 6
+        self.win_zamena = zamena_add_window(num_les, kandidati, date)
+        self.win_zamena.show()
 
 class zamena_add_window(QWidget):
-    def __init__(self, teach_id, num_les, sel_teach, kandidati, date, sel_weekday, sel_predmet):
+    def __init__(self, num_les, kandidati, date):
         super().__init__()
-        self.selected_teacher_fio = sel_teach[6:]
-        self.selected_teacher_num_tab = sel_teach[:4]
         self.setWindowTitle('Окно добавления замены')
-        self.setFixedSize(360, 340)
-        year, month, day = str(date)[:10].split('-')
-        self.sel_date = day + '.' + month + '.' + year
-        self.zamena_klass = raspisanie[teach_id][4 + int(sel_weekday) * 10 + int(num_les)]
-        self.predmet = sel_predmet
-        print('Выбранная дата:', self.sel_date)
-        print('Выбранный учитель ТАБ №:', self.selected_teacher_num_tab)
-        print('Выбранный учитель ФИО:', self.selected_teacher_fio)
-        print('Кафедра на котором работает учитель:', self.predmet)
-        print('Номер дня недели:', sel_weekday + 1)
-        print('Номер заменяемого урока:', num_les)
-        print('Индекс столбца заменяемого урока:', 4 + int(sel_weekday) * 10 + int(num_les))
-        print('Класс для которого выставляется замена на данном уроке:', self.zamena_klass)
-
-        kandidati_list = []
-        for i in range(len(kandidati)):
-            sel_les,num_tab_kand,fio_kand,zamena_les = list(map(str,kandidati[i].split(';')))
-            kandidati_list.append(num_tab_kand+'. '+fio_kand)
+        self.setFixedSize(360, 240)
 
         # поле поиска и выбора учителя
         self.lbl_find = QLabel(self)
@@ -359,125 +327,45 @@ class zamena_add_window(QWidget):
         self.lbl_find.move(30, 30)
         self.lbl_find.setFixedWidth(70)
 
-        self.kandidat_find = QLineEdit(self)
-        self.kandidat_find.setFocus()
-        self.kandidat_find.textChanged.connect(self.kandidatFind)
-        self.kandidat_find.move(100, 30)
-        self.kandidat_find.setFixedWidth(230)
+        self.teach_find = QLineEdit(self)
+        self.teach_find.setFocus()
+        self.teach_find.textChanged.connect(self.teachFind)
+        self.teach_find.move(120, 30)
+        self.teach_find.setFixedWidth(210)
 
-        self.kandidat_select = QComboBox(self)
-        self.kandidat_select.move(30, 70)
-        self.kandidat_select.addItems(kandidati_list)
-        self.kandidat_select.setFixedWidth(300)
+        print(num_les)
+        for i in range(len(kandidati)):
+            print(kandidati[i][0], kandidati[i][1])
 
-        # поле выбора заменяемого предмета
-        self.lbl_predmet = QLabel(self)
-        self.lbl_predmet.setText('Предмет: ')
-        self.lbl_predmet.move(30, 110)
-        self.lbl_predmet.setFixedWidth(70)
+        kandidati_list = []
+        for i in range(len(kandidati)):
+            kandidati_list.append(kandidati[i][1])
 
-        # выбор заменяемого предмета
-        pred = self.predmet
-        match pred:
-            case 'РУССКИЙ ЯЗЫК И ЛИТЕРАТУРА':
-                self.predmet_list = ['русский язык', 'литература', 'комплексный анализ текста']
-            case 'МАТЕМАТИКА':
-                self.predmet_list = ['математика', 'алгебра', 'геометрия', 'практикум...']
-            case 'АНГЛИЙСКИЙ ЯЗЫК':
-                self.predmet_list = ['', '', '', 'практикум...']
-            case 'ИНФОРМАТИКА':
-                self.predmet_list = ['информатика', 'олимпиадное программирование', 'программирование', '3D-графика',
-                                     'микроэлектроника', 'сетевые технологии']
-            case 'ФИЗИКА / АСТРОНОМИЯ':
-                self.predmet_list = ['', '', '', 'практикум...']
-            case 'ХИМИЯ / ЕСТЕСТВОЗНАНИЕ':
-                self.predmet_list = ['', '', '', 'практикум...']
-            case 'БИОЛОГИЯ':
-                self.predmet_list = ['', '', '', 'практикум...']
-            case 'ИСТОРИЯ / ОБЩЕСТВОЗНАНИЕ':
-                self.predmet_list = ['', '', '', 'практикум...']
-            case 'ГЕОГРАФИЯ/ ОДНКНР':
-                self.predmet_list = ['', '', '', 'практикум...']
-            case 'ФИЗКУЛЬТУРА / РИТМИКА':
-                self.predmet_list = ['', '', '', 'практикум...']
-            case 'ТЕХНОЛОГИЯ':
-                self.predmet_list = ['', '', '', 'практикум...']
-            case 'МУЗЫКА':
-                self.predmet_list = ['', '', '', 'практикум...']
-            case 'ИЗО / ХУД.ШКОЛА':
-                self.predmet_list = ['', '', '', 'практикум...']
-            case 'МУЗЕЙНАЯ ПЕДАГОГИКА':
-                self.predmet_list = ['', '', '', 'практикум...']
-            case 'ОБЖ':
-                self.predmet_list = ['', '', '', 'практикум...']
-            case 'ЭКОНОМИКА':
-                self.predmet_list = ['', '', '', 'практикум...']
-            case 'КИТАЙСКИЙ ЯЗЫК / СТРАНОВЕДЕНИЕ':
-                self.predmet_list = ['', '', '', 'практикум...']
-            case 'НАЧАЛЬНАЯ ШКОЛА':
-                self.predmet_list = ['', '', '', 'практикум...']
-
-        self.predmet_select = QComboBox(self)
-        self.predmet_select.move(100, 110)
-        self.predmet_select.setFixedWidth(230)
-        self.predmet_select.addItems(self.predmet_list)
+        self.teach_select = QComboBox(self)
+        self.teach_select.move(30, 70)
+        self.teach_select.addItems(kandidati_list)
+        self.teach_select.setFixedWidth(300)
+        self.teach_select.currentIndex()
 
         # поле ввода кабинета
         self.lbl_find = QLabel(self)
         self.lbl_find.setText('Кабинет: ')
-        self.lbl_find.move(30, 150)
+        self.lbl_find.move(30, 110)
         self.lbl_find.setFixedWidth(70)
 
-        self.kabinet = QLineEdit(self)
-        self.kabinet.move(100, 150)
-        self.kabinet.setFixedWidth(105)
-
-        # поле выбора причины отсутствия
-        self.lbl_prich = QLabel(self)
-        self.lbl_prich.setText('Причина: ')
-        self.lbl_prich.move(30, 190)
-        self.lbl_prich.setFixedWidth(70)
-
-        self.prichini = ['листок нетрудоспособности', 'отпуск без сохранения заработной платы', 'очередной отпуск',
-                         'командировка']
-        self.prichina_select = QComboBox(self)
-        self.prichina_select.move(100, 190)
-        self.prichina_select.addItems(self.prichini)
-        self.prichina_select.setFixedWidth(230)
-
-        # поле выбора ИФО
-        self.lbl_ifo = QLabel(self)
-        self.lbl_ifo.setText('ИФО: ')
-        self.lbl_ifo.move(30, 230)
-        self.lbl_ifo.setFixedWidth(70)
-
-        self.ifo = ['СГЗ', 'ПД']
-        self.ifo_select = QComboBox(self)
-        self.ifo_select.move(100, 230)
-        self.ifo_select.addItems(self.ifo)
-        self.ifo_select.setFixedWidth(230)
-
-        # поле выбора процента оплаты
-        self.lbl_opl_proc = QLabel(self)
-        self.lbl_opl_proc.setText('Оплата: ')
-        self.lbl_opl_proc.move(30, 270)
-        self.lbl_opl_proc.setFixedWidth(70)
-
-        self.proc = ['100%', '50%']
-        self.proc_select = QComboBox(self)
-        self.proc_select.move(100, 270)
-        self.proc_select.addItems(self.proc)
-        self.proc_select.setFixedWidth(230)
+        self.teach_find = QLineEdit(self)
+        self.teach_find.move(120, 110)
+        self.teach_find.setFixedWidth(105)
 
         # кнопки отмены и добавления замены в журнал
         self.okButton = QPushButton(self)
         self.okButton.setText("Добавить")
-        self.okButton.move(130, 310)
+        self.okButton.move(130, 150)
         self.okButton.setFixedWidth(100)
         self.okButton.clicked.connect(self.zamena_add)
 
     # вывод в выпадающий список учителей по фильтру из поля поиска
-    def kandidatFind(self, text):
+    def teachFind(self, text):
         fioSrez = fix_input(text.capitalize())
         lenFioSrez = len(fioSrez)
         sotrudniki_find = []
@@ -485,50 +373,31 @@ class zamena_add_window(QWidget):
             if sotrudniki_fio[i][6:6 + lenFioSrez] == fioSrez:
                 sotrudniki_find.append(sotrudniki_fio[i])
         if len(sotrudniki_find) > 0:
-            self.kandidat_select.clear()
-            self.kandidat_select.addItems(sotrudniki_find)
+            self.teach_select.clear()
+            self.teach_select.addItems(sotrudniki_find)
         else:
-            self.kandidat_select.addItems(sotrudniki_fio)
+            self.teach_select.addItems(sotrudniki_fio)
 
     def zamena_add(self):
-        kandidat_sel = self.kandidat_select.currentText()
-        kand_tab_num = kandidat_sel[:4]
-        kand_fio_razd = list(map(str,kandidat_sel[6:].split()))
-        kand_fio = kand_fio_razd[0] + ' ' + kand_fio_razd[1][:1] + '.' + kand_fio_razd[2][:1] + '.'
-        teach_tab_num = self.selected_teacher_num_tab
-        teach_fio_razd = list(map(str,self.selected_teacher_fio.split()))
-        teach_fio = teach_fio_razd[0] + ' ' +teach_fio_razd[1][:1] + '.' + teach_fio_razd[2][:1] + '.'
-        s_date = self.sel_date
-        z_klass = self.zamena_klass.split()
-        print(z_klass)
-        zam_klass = z_klass[0]
-        pric = self.prichina_select.currentText()
-        ifo = self.ifo_select.currentText()
-        oplata = self.proc_select.currentText()
 
-
+        '''
         wb = load_workbook(filename=zameni_book_name)
-        ws = wb['Замены']
-
-        sheet = wb.active
-        row_num = sheet.max_row
-
-        zamena_zapis = [row_num, s_date, teach_fio, teach_tab_num, pred, zam_klass, pric, kand_fio, kand_tab_num, ifo, oplata]
-        print(zamena_zapis)
+        ws = wb['Учет больничных листов']
         ws.append(zamena_zapis)
-        # выравнивание столбцов B D E I F G J K по центру
-        for c in 'BDEFGIJK':
+        sheet = wb.active
+        # выравнивание столбцов D E F G по центру
+        for c in 'DEFG':
             currRow = c + str(sheet.max_row)
             cell = sheet[str(currRow)]
             alignment = Alignment(horizontal="center", vertical="center")
             cell.alignment = alignment
         wb.save(filename=zameni_book_name)
         wb.close()
-
+        '''
         zamena_add_window.close(self)
 
 app = QApplication(sys.argv)
-app.setWindowIcon(QtGui.QIcon('icon.png'))
+app.setWindowIcon(QtGui.QIcon('../icon.png'))
 
 window = MainWindow()
 window.setGeometry(400, 200, 800, 600)

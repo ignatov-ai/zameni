@@ -97,7 +97,7 @@ def append_df_to_excel(filename, df, sheet_name='Sheet1', startrow=None,
 
 
 sotrudniki = []
-with open('sotrudniki.csv','r') as url:
+with open('../sotrudniki.csv', 'r') as url:
   for line in url:
     sotrudniki.append(line.strip().split(';'))
 
@@ -201,11 +201,11 @@ class MainWindow(QMainWindow):
         #zameni_book = zameni_book.add_worksheet()
         new_zapis = [[sotrudniki[id][0], sotrudniki[id][1], sotrudniki[id][2], sotrudniki[id][3], sotrudniki[id][4]]]
         df = pd.DataFrame(new_zapis)
-        writer = pd.ExcelWriter('test.xlsx', engine='openpyxl', mode='a', if_sheet_exists='replace')
+        writer = pd.ExcelWriter('../test.xlsx', engine='openpyxl', mode='a', if_sheet_exists='replace')
         #df.to_excel(writer, sheet_name='zameni', startrow=writer.sheets['zameni'].max_row, index=False, header=False)
         #writer.save()
 
-        append_df_to_excel('test.xlsx', df, sheet_name='zameni', startrow=len(df)+1, header=None, index=False)
+        append_df_to_excel('../test.xlsx', df, sheet_name='zameni', startrow=len(df) + 1, header=None, index=False)
 
 
 app = QApplication(sys.argv)

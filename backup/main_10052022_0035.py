@@ -3,7 +3,7 @@ from datetime import datetime
 
 from PyQt6 import QtGui
 from PyQt6.QtCore import QDate
-from PyQt6.QtWidgets import (QApplication, QLabel, QMainWindow, QVBoxLayout,
+from PyQt6.QtWidgets import (QApplication, QLabel, QMainWindow,
                              QPushButton, QTabWidget, QWidget, QLineEdit, QComboBox, QDateEdit)
 
 from openpyxl import load_workbook
@@ -40,19 +40,27 @@ if day < 10:
 month = datetime.now().month
 if month < 10:
     month = str('0') + str(month)
-today = str(day) + '.' + str(month) + '.' + str(datetime.now().year)
+today = day + '.' + month + '.' + str(datetime.now().year)
 print(today)
 current_day = datetime.today().weekday()
 
 # выгрузка БД с расписанием
 raspisanie = []
-with open('raspisanie_done.csv', 'r') as url:
+with open('../raspisanie_done.csv', 'r') as url:
     for line in url:
         raspisanie.append(line.strip().split(';'))
 
+'''
+for j in range(len(raspisanie)):
+    print(raspisanie[j][0] + '. ' + raspisanie[j][1] +' '+ raspisanie[j][2] + ' ', end='')
+    for i in range(3+current_day*10, 3+(current_day+1)*10):
+        print(str(i-2-current_day*10) + '. '+raspisanie[j][i]+' | ', end='')
+    print()
+'''
+
 # выгрузка БД с сотрудниками
 sotrudniki = []
-with open('sotrudniki.csv', 'r') as url:
+with open('../sotrudniki.csv', 'r') as url:
     for line in url:
         sotrudniki.append(line.strip().split(';'))
 
@@ -65,7 +73,6 @@ class zamenaAddBtn(QPushButton):
     def __init__(self):
         QPushButton.__init__(self)
         self.setStyleSheet("background-color: rgb(255,255,255);")
-
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -339,7 +346,9 @@ class MainWindow(QMainWindow):
 
     def zamena_lessons_build(self,tab2):
         day, month, year = (int(x) for x in self.zamena_select_2.text().split('.'))
+        date = datetime(year, month, day)
         sel_date = datetime.weekday(datetime(year, month, day))
+        sel_teach_all = self.teach_select_2.currentText()
         sel_teach = self.teach_select_2.currentText()[:4]
 
         for teach_id in range(len(sotrudniki)):
@@ -351,37 +360,28 @@ class MainWindow(QMainWindow):
                 break
         print('Индекс выбранного учителя в массиве сотрудников:', teach_id)
 
-        zamadd_layout = QVBoxLayout()
-        zamadd_layout.setContentsMargins(450,50,30,160)
-
         self.les_zamena_add_buttons = [zamenaAddBtn() for i in range(10)]
-        for i, button in enumerate(self.les_zamena_add_buttons):
-            button.clicked.connect(lambda ch, num=i + 1: self.zamena_add_form(num))
-
-            button.setFixedWidth(200)
-            button.move(300,60)
-            print(raspisanie[teach_id][i+ 4 + sel_date * 10])
-            if raspisanie[teach_id][i+ 4 + sel_date * 10] == '-':
-                button.setText('Нет урока для замены')
-                button.setEnabled(False)
-                print('Кнопка НЕ работает')
-            else:
-                button.setText('Добавить замену для:  ' + raspisanie[teach_id][i + 4 + sel_date * 10])
-                button.setEnabled(True)
-                print('Кнопка работает')
-            zamadd_layout.addWidget(button)
-        tab2.setLayout(zamadd_layout)
-
-
 
         for i in range(4 + sel_date * 10, 4 + (sel_date + 1) * 10):
             print(str(i - 3 - sel_date * 10) + '. ' + raspisanie[teach_id][i] + ' | ', end='')
 
             self.lbl_les_1_label = QLabel(tab2)
-            self.lbl_les_1_label.setText(str(i - 3 - sel_date * 10) + '.     ' + raspisanie[teach_id][i])
+            self.lbl_les_1_label.setText('1.     ' + raspisanie[teach_id][i])
             self.lbl_les_1_label.move(440, 62 + i * 30)
             self.lbl_les_1_label.setFixedWidth(200)
 
+
+            les_zamena_add.setText("Добавить замену")
+            les_zamena_add.move(650, 60 + i * 30)
+            les_zamena_add.setFixedWidth(120)
+            les_zamena_add.clicked.connect(lambda ch, num=i + 1: self.zamena_add_form(num))
+
+            if raspisanie[teach_id][i] == '-':
+                les_zamena_add.setEnabled(False)
+                print('Конпка НЕ работает')
+            else:
+                les_zamena_add.setEnabled(True)
+                print('Конпка работает')
 
     def zamena_add_form(self, i):
         num_les = i
@@ -654,7 +654,7 @@ class zamena_add_window(QWidget):
         zamena_add_window.close(self)
 
 app = QApplication(sys.argv)
-app.setWindowIcon(QtGui.QIcon('icon.png'))
+app.setWindowIcon(QtGui.QIcon('../icon.png'))
 
 window = MainWindow()
 window.setGeometry(400, 200, 800, 600)

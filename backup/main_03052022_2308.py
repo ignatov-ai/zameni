@@ -1,6 +1,7 @@
 import sys
 from datetime import datetime
 
+from PyQt6 import QtGui
 from PyQt6.QtCore import QDate
 from PyQt6.QtWidgets import (QApplication, QLabel, QMainWindow,
     QPushButton, QTabWidget, QWidget, QLineEdit, QComboBox, QDateEdit)
@@ -41,7 +42,7 @@ current_day = datetime.today().weekday()
 
 # выгрузка БД с расписанием
 raspisanie = []
-with open('raspisanie_done.csv', 'r') as url:
+with open('../raspisanie_done.csv', 'r') as url:
   for line in url:
     raspisanie.append(line.strip().split(';'))
 
@@ -55,7 +56,7 @@ for j in range(len(raspisanie)):
 
 # выгрузка БД с сотрудниками
 sotrudniki = []
-with open('sotrudniki.csv', 'r') as url:
+with open('../sotrudniki.csv', 'r') as url:
   for line in url:
     sotrudniki.append(line.strip().split(';'))
 
@@ -78,8 +79,8 @@ class MainWindow(QMainWindow):
         self.tabs.setMovable(True)
         self.tabs.addTab(tab1, 'Создание больничного листа')
         self.tabs.addTab(tab2, 'Создание замены')
-        self.tabs.addTab(tab3, 'Жкрнал больничных листов')
-        self.tabs.addTab(tab3, 'Журнал замен')
+        self.tabs.addTab(tab3, 'Журнал больничных листов')
+        self.tabs.addTab(tab4, 'Журнал замен')
         self.setCentralWidget(self.tabs)
 
         ###################################################################################
@@ -189,9 +190,16 @@ class MainWindow(QMainWindow):
         self.lbl_zamena_s.setFixedWidth(100)
 
         self.lbl_zamena_s_2 = QLabel(tab2)
-        self.lbl_zamena_s_2.setText(today)
+        #self.lbl_zamena_s_2.setText(today)
+        self.lbl_zamena_s_2.setText('Дата еще не выбрана!')
         self.lbl_zamena_s_2.move(150, 222)
-        self.lbl_zamena_s_2.setFixedWidth(100)
+        self.lbl_zamena_s_2.setFixedWidth(150)
+
+        zamenaButton = QPushButton(tab2)
+        zamenaButton.setText("Построить замены для выбранной даты")
+        zamenaButton.move(30, 260)
+        zamenaButton.setFixedWidth(320)
+        zamenaButton.clicked.connect(self.zamena_add_form)
 
     # вывод в выпадающий список учителей по фильтру из поля поиска
     def teachFind(self, text):
@@ -245,17 +253,54 @@ class MainWindow(QMainWindow):
         wb.close()
 
     def zamena_date_select(self):
-        self.lbl_zamena_s_2.setText(self.zamena_select_2.text())
+        selected_date = self.zamena_select_2.text()
+        #print(selected_date)
+        self.lbl_zamena_s_2.setText(selected_date)
+        return selected_date
 
     def zamena_teach_select(self):
         selected_fio_text = self.teach_select_2.currentText()
-        print(selected_fio_text)
+        #print(selected_fio_text)
         self.lbl_teach_select_2.setText(selected_fio_text)
+        return selected_fio_text[6:]
+
+    def zamena_add_form(self):
+        day, month, year = (int(x) for x in self.zamena_select_2.text().split('.'))
+        sel_date = datetime.weekday(datetime(year, month, day))
+        sel_teach = self.teach_select_2.currentText()[:4]
+
+        for teach_id in range(len(sotrudniki)):
+            if raspisanie[teach_id][0] == sel_teach:
+                break
+        # вывод заменяемого учителя и расписание его уроков на этот день
+        print(raspisanie[teach_id][0] + '. ' + raspisanie[teach_id][1] + ' ' + raspisanie[teach_id][2] + ' ', end='')
+        for i in range(4 + sel_date * 10, 4 + (sel_date + 1) * 10):
+            print(str(i - 3 - sel_date * 10) + '. ' + raspisanie[teach_id][i] + ' | ', end='')
+        print()
+        sel_predmet = raspisanie[teach_id][2]
+        # вывод учителей ТОГО ЖЕ предмета
+        kandidati = []
+        for i in range(len(raspisanie)):
+            if raspisanie[i][2] == sel_predmet and raspisanie[i][0] != sel_teach:
+                kandidati.append(raspisanie[i][0]+'. '+raspisanie[i][1])
+
+        # вывод учителей ОСТАЛЬНЫХ предметов
+        for i in range(len(raspisanie)):
+            if raspisanie[i][2] != sel_predmet:
+                kandidati.append(raspisanie[i][0]+'. '+raspisanie[i][1])
+
+        n_lessons = 10 - raspisanie[teach_id][4 + sel_date * 10: 4 + (sel_date + 1) * 10].count('-')
+        #print(n_lessons,kandidati)
+
+
+
 
 app = QApplication(sys.argv)
+app.setWindowIcon(QtGui.QIcon('../icon.png'))
 
 window = MainWindow()
 window.setGeometry(400, 200, 800, 600)
+window.setWindowTitle('Составитель замен. Текущая дата: ' + today)
 window.show()
 
 app.exec()

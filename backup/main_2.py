@@ -7,7 +7,7 @@ from PyQt6.QtWidgets import (
 from PyQt6.QtCore import QDate
 
 sotrudniki = []
-with open('sotrudniki.csv','r') as url:
+with open('../sotrudniki.csv', 'r') as url:
   for line in url:
     sotrudniki.append(line.strip().split(';'))
 

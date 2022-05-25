@@ -1,15 +1,13 @@
 import sys
 from datetime import datetime
 
-from PyQt6 import QtGui, QtCore, QtWidgets
-from PyQt6.QtCore import QDate, Qt
-from PyQt6.QtWidgets import (QApplication, QLabel, QMainWindow, QVBoxLayout, QListView, QListWidget,
-                             QPushButton, QTabWidget, QWidget, QLineEdit, QComboBox, QDateEdit, QTableWidget,
-                             QTableWidgetItem, QHeaderView)
+from PyQt6 import QtGui
+from PyQt6.QtCore import QDate
+from PyQt6.QtWidgets import (QApplication, QLabel, QMainWindow, QVBoxLayout,
+                             QPushButton, QTabWidget, QWidget, QLineEdit, QComboBox, QDateEdit)
 
 from openpyxl import load_workbook
 from openpyxl.styles import Alignment
-import pandas as pd
 
 # from openpyxl.workbook import Workbook
 
@@ -39,13 +37,13 @@ current_day = datetime.today().weekday()
 
 # выгрузка БД с расписанием
 raspisanie = []
-with open('raspisanie_done.csv', 'r') as url:
+with open('../raspisanie_done.csv', 'r') as url:
     for line in url:
         raspisanie.append(line.strip().split(';'))
 
 # выгрузка БД с сотрудниками
 sotrudniki = []
-with open('sotrudniki.csv', 'r') as url:
+with open('../sotrudniki.csv', 'r') as url:
     for line in url:
         sotrudniki.append(line.strip().split(';'))
 
@@ -64,24 +62,22 @@ class MainWindow(QMainWindow):
         super().__init__()
 
         self.setWindowTitle("Вкладки для замен")
-        self.tab_index = 0
+
         self.tabs = QTabWidget()
         self.tab1 = QWidget()
         self.tab2 = QWidget()
         self.tab3 = QWidget()
         self.tab4 = QWidget()
-        self.tab5 = QWidget()
         self.tabs.setMovable(True)
         self.tabs.addTab(self.tab1, 'Создание больничного листа')
         self.tabs.addTab(self.tab2, 'Создание замены')
         self.tabs.addTab(self.tab3, 'Журнал больничных листов')
         self.tabs.addTab(self.tab4, 'Журнал замен')
-        self.tabs.addTab(self.tab5, 'ЖОПА С ТАБЛИЦЕЙ')
         self.setCentralWidget(self.tabs)
 
-    ###################################################################################
-    ######################### ВКЛАДКА СОЗДАНИЯ БОЛЬНИЧНОГО ЛИСТА ######################
-    ###################################################################################
+        ###################################################################################
+        ######################### ВКЛАДКА СОЗДАНИЯ БОЛЬНИЧНОГО ЛИСТА ######################
+        ###################################################################################
 
         # поле поиска и выбора учителя
         lbl_find = QLabel(self.tab1)
@@ -134,9 +130,9 @@ class MainWindow(QMainWindow):
         cancelButton.move(200, 220)
         cancelButton.setFixedWidth(100)
 
-    ###################################################################################
-    ############################## ВКЛАДКА СОЗДАНИЯ ЗАМЕНЫ ############################
-    ###################################################################################
+        ###################################################################################
+        ############################## ВКЛАДКА СОЗДАНИЯ ЗАМЕНЫ ############################
+        ###################################################################################
 
         # выбор учителя для замены
         lbl_find_2 = QLabel(self.tab2)
@@ -185,6 +181,7 @@ class MainWindow(QMainWindow):
         self.lbl_zamena_s.setFixedWidth(100)
 
         self.lbl_zamena_s_2 = QLabel(self.tab2)
+        # self.lbl_zamena_s_2.setText(today)
         self.lbl_zamena_s_2.setText('Дата еще не выбрана!')
         self.lbl_zamena_s_2.move(150, 222)
         self.lbl_zamena_s_2.setFixedWidth(150)
@@ -304,85 +301,6 @@ class MainWindow(QMainWindow):
         self.les_zamena_add_btn_10.setFixedWidth(120)
         self.les_zamena_add_btn_10.setEnabled(False)
         self.les_zamena_add_btn_10.clicked.connect(lambda ch, num=10: self.zamena_add_form(num))
-
-    ###################################################################################
-    ##################### ВКЛАДКА ВЫВОДА ЖУРНАЛА БОЛЬНИЧНЫХ ЛИСТОВ ####################
-    ###################################################################################
-
-        # отслеживание нажатия на вкладку больничного листа или листа с заменами
-        self.tabs.currentChanged.connect(self.currentTabNumber)
-
-        self.bolnichniy_table = QtWidgets.QTableWidget(self.tab3)
-        self.bolnichniy_table.setGeometry(30, 30, mainWindowW - 60, mainWindowH - 120)
-        self.bolnichniy_table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode(1))
-
-        self.bolnichniy_table_update = QPushButton(self.tab3)
-        self.bolnichniy_table_update.setText("Обновить данные")
-        self.bolnichniy_table_update.move(mainWindowW//2-self.bolnichniy_table_update.width()//2, mainWindowH - 70)
-        self.bolnichniy_table_update.setFixedWidth(120)
-        self.bolnichniy_table_update.clicked.connect(self.bolnichniyExcelLoad)
-
-    ###################################################################################
-    ########################### ВКЛАДКА ВЫВОДА ЖУРНАЛА ЗАМЕН ##########################
-    ###################################################################################
-
-        # отслеживание нажатия на вкладку больничного листа
-        self.tabs.currentChanged.connect(self.currentTabNumber)
-
-        self.zameni_table = QtWidgets.QTableWidget(self.tab4)
-        self.zameni_table.setGeometry(30, 30, mainWindowW - 60, mainWindowH - 120)
-        self.zameni_table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode(3))
-
-
-        self.zameni_table_update = QPushButton(self.tab4)
-        self.zameni_table_update.setText("Обновить данные")
-        self.zameni_table_update.move(mainWindowW//2-self.zameni_table_update.width()//2, mainWindowH - 70)
-        self.zameni_table_update.setFixedWidth(120)
-        self.zameni_table_update.clicked.connect(self.zameniExcelLoad)
-
-    ###################################################################################
-    ######################## ИСПОЛЬЗУЕМЫЕ ФУНКЦИИ И ПРОЦЕДУРЫ #########################
-    ###################################################################################
-
-    def bolnichniyExcelLoad(self):
-        # получение данных из файла со списком больничных листов
-        load_bolnichniy_file = 'test.xlsx'
-        bolnichnie_data = pd.read_excel(load_bolnichniy_file, 'Учет больничных листов')
-        bolnichnie_data.fillna('', inplace=True)
-
-        self.bolnichniy_table.setRowCount(bolnichnie_data.shape[0])
-        self.bolnichniy_table.setColumnCount(bolnichnie_data.shape[1])
-        self.bolnichniy_table.setHorizontalHeaderLabels(bolnichnie_data.columns)
-
-        for row in bolnichnie_data.iterrows():
-            values = row[1]
-            for col_index, value in enumerate(values):
-                tableItem = QTableWidgetItem(str(value))
-                self.bolnichniy_table.setItem(row[0], col_index, tableItem)
-
-    def zameniExcelLoad(self):
-        # получение данных из файла со списком больничных листов
-        load_zameni_file = 'zameni.xlsx'
-        zameni_data = pd.read_excel(load_zameni_file, 'Замены')
-        zameni_data.fillna('', inplace=True)
-
-        self.zameni_table.setRowCount(zameni_data.shape[0])
-        self.zameni_table.setColumnCount(zameni_data.shape[1])
-        self.zameni_table.setHorizontalHeaderLabels(zameni_data.columns)
-
-        for row in zameni_data.iterrows():
-            values = row[1]
-            for col_index, value in enumerate(values):
-                tableItem = QTableWidgetItem(str(value))
-                self.zameni_table.setItem(row[0], col_index, tableItem)
-
-    # определение текущей вкладки
-    def currentTabNumber(self, index):
-        self.tab_index = self.tabs.currentIndex()
-        if self.tab_index == 2:
-            self.bolnichniyExcelLoad()
-        elif self.tab_index == 3:
-            self.zameniExcelLoad()
 
     # вывод в выпадающий список учителей по фильтру из поля поиска
     def teachFind(self, text):
@@ -558,11 +476,15 @@ class MainWindow(QMainWindow):
 
             # вывод заменяемого учителя и расписание его уроков на этот день
             sel_teach_num_les = []
+            #print(raspisanie[teach_id][0] + '. ' + raspisanie[teach_id][1] + ' '
+            #+ raspisanie[teach_id][2] + ' ', end='')
             for i in range(4 + sel_date * 10, 4 + (sel_date + 1) * 10):
+                # print(str(i - 3 - sel_date * 10) + '. ' + raspisanie[teach_id][i] + ' | ', end='')
                 if raspisanie[teach_id][i] != '-':
                     # сохранение в массив sel_teach_num_les уроков для замены (окна пропущены)
                     sel_teach_num_les.append(i)
             print('Номера уроков для замены:', *sel_teach_num_les)
+            # print()
             self.sel_predmet = raspisanie[teach_id][2]
             # вывод учителей ТОГО ЖЕ предмета
             kandidati = []
@@ -575,6 +497,8 @@ class MainWindow(QMainWindow):
                         kand_temp = str(i - 3 - sel_date * 10) + ';' + str(raspisanie[j][0]) + ';' \
                                     + str(raspisanie[j][1]) + ';' + str(raspisanie[teach_id][i])
                         kandidati.append(kand_temp)
+                        # print(raspisanie[j][0]+'. '+raspisanie[j][1], end=' | ')
+                # print()
 
             # вывод учителей ОСТАЛЬНЫХ предметов
             for j in range(len(raspisanie)):
@@ -583,15 +507,20 @@ class MainWindow(QMainWindow):
                         kand_temp = str(i - 3 - sel_date * 10) + ';' + str(raspisanie[j][0]) + ';' + \
                                     str(raspisanie[j][1]) + ';' + str(raspisanie[teach_id][i])
                         kandidati.append(kand_temp)
+                        # print(raspisanie[j][0]+'. '+raspisanie[j][1], end=' | ')
+                # print()
+            # print(kandidati)
 
             kandidati = sorted(kandidati, key=lambda row: row[0])
             n_lessons = 10 - raspisanie[teach_id][4 + sel_date * 10: 4 + (sel_date + 1) * 10].count('-')
             print('Количество заменяемых уроков:', n_lessons)
             print('Количество кандидатов для замены ВСЕХ уроков:', len(kandidati))
 
+            #num_les = 6
             self.win_zamena = zamena_add_window(teach_id, num_les, sel_teach_all, kandidati,
                                                 date, sel_date, self.sel_predmet)
             self.win_zamena.show()
+
 
 class zamena_add_window(QWidget):
     def __init__(self, teach_id, num_les, sel_teach, kandidati, date, sel_weekday, sel_predmet):
@@ -602,8 +531,7 @@ class zamena_add_window(QWidget):
         self.setFixedSize(360, 340)
         year, month, day = str(date)[:10].split('-')
         self.sel_date = day + '.' + month + '.' + year
-        self.zamena_less = 4 + int(sel_weekday) * 10 + int(num_les)-1
-        self.zamena_klass = raspisanie[teach_id][self.zamena_less]
+        self.zamena_klass = raspisanie[teach_id][4 + int(sel_weekday) * 10 + int(num_les)]
         self.predmet = sel_predmet
         print('Выбранная дата:', self.sel_date)
         print('Выбранный учитель ТАБ №:', self.selected_teacher_num_tab)
@@ -611,7 +539,7 @@ class zamena_add_window(QWidget):
         print('Кафедра на котором работает учитель:', self.predmet)
         print('Номер дня недели:', sel_weekday + 1)
         print('Номер заменяемого урока:', num_les)
-        print('Индекс столбца заменяемого урока:', self.zamena_less)
+        print('Индекс столбца заменяемого урока:', 4 + int(sel_weekday) * 10 + int(num_les))
         print('Класс для которого выставляется замена на данном уроке:', self.zamena_klass)
 
         kandidati_list = []
@@ -763,7 +691,7 @@ class zamena_add_window(QWidget):
         kand_tab_num = kandidat_sel[:4]
         kand_fio_razd = list(map(str, kandidat_sel[6:].split()))
         kand_fio = kand_fio_razd[0] + ' ' + kand_fio_razd[1][:1] + '.' + kand_fio_razd[2][:1] + '.'
-        teach_tab_num = str(self.selected_teacher_num_tab)
+        teach_tab_num = self.selected_teacher_num_tab
         teach_fio_razd = list(map(str, self.selected_teacher_fio.split()))
         teach_fio = teach_fio_razd[0] + ' ' + teach_fio_razd[1][:1] + '.' + teach_fio_razd[2][:1] + '.'
         s_date = self.sel_date
@@ -785,7 +713,6 @@ class zamena_add_window(QWidget):
                         oplata]
         print(zamena_zapis)
         ws.append(zamena_zapis)
-
         # выравнивание столбцов B D E I F G J K по центру
         for c in 'BDEFGIJK':
             currRow = c + str(sheet.max_row)
@@ -798,13 +725,10 @@ class zamena_add_window(QWidget):
         zamena_add_window.close(self)
 
 app = QApplication(sys.argv)
-app.setWindowIcon(QtGui.QIcon('icon.png'))
-
-mainWindowW = 1300
-mainWindowH = 600
+app.setWindowIcon(QtGui.QIcon('../icon.png'))
 
 window = MainWindow()
-window.setGeometry((int(1920/1.25)-mainWindowW)//2, (int(1200/1.25)-mainWindowH)//2, mainWindowW, mainWindowH)
+window.setGeometry(400, 200, 800, 600)
 window.setWindowTitle('Составитель замен. Текущая дата: ' + today)
 window.show()
 
