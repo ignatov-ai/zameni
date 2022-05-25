@@ -331,6 +331,7 @@ class MainWindow(QMainWindow):
         self.bolnichniy_table.setGeometry(30, 30, mainWindowW - 60, mainWindowH - 120)
         self.bolnichniy_table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode(1))
         self.bolnichniy_table.setFrameStyle(QTableWidget.Shape.NoFrame)
+        self.bolnichniy_table.setStyleSheet('')
 
         self.bolnichniy_table_update = QPushButton(self.tab3)
         self.bolnichniy_table_update.setText("Обновить данные")
@@ -342,13 +343,11 @@ class MainWindow(QMainWindow):
     ########################### ВКЛАДКА ВЫВОДА ЖУРНАЛА ЗАМЕН ##########################
     ###################################################################################
 
-        # отслеживание нажатия на вкладку больничного листа
-        self.tabs.currentChanged.connect(self.currentTabNumber)
-
         self.zameni_table = QtWidgets.QTableWidget(self.tab4)
         self.zameni_table.setGeometry(30, 30, mainWindowW - 60, mainWindowH - 120)
         self.zameni_table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode(3))
         self.zameni_table.setFrameStyle(QTableWidget.Shape.NoFrame)
+        self.zameni_table.setStyleSheet('')
 
 
         self.zameni_table_update = QPushButton(self.tab4)
