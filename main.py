@@ -307,9 +307,8 @@ class MainWindow(QMainWindow):
         ##################### ВКЛАДКА ВЫВОДА ЖУРНАЛА БОЛЬНИЧНЫХ ЛИСТОВ ####################
         ###################################################################################
 
-        # отслеживание нажатия на вкладку больничного листа
+        # отслеживание нажатия на вкладку больничного листа или листа с заменами
         self.tabs.currentChanged.connect(self.currentTabNumber)
-
 
         self.bolnichniy_table = QtWidgets.QTableWidget(self.tab3)
         self.bolnichniy_table.setGeometry(30, 30, mainWindowW - 60, mainWindowH - 120)
@@ -319,8 +318,6 @@ class MainWindow(QMainWindow):
         self.bolnichniy_table_update.move(330, 530)
         self.bolnichniy_table_update.setFixedWidth(120)
         self.bolnichniy_table_update.clicked.connect(self.bolnichniyExcelLoad)
-
-
 
         ###################################################################################
         ########################### ВКЛАДКА ВЫВОДА ЖУРНАЛА ЗАМЕН ##########################
