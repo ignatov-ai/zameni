@@ -82,14 +82,20 @@ class MainWindow(QMainWindow):
         self.tabs.addTab(self.tab5, 'ЖОПА С ТАБЛИЦЕЙ')
         self.setCentralWidget(self.tabs)
 
+        self.tab1.setStyleSheet('background-color: rgb(255,247,247);')
+        self.tab2.setStyleSheet('background-color: rgb(247,255,247);')
+        self.tab3.setStyleSheet('background-color: rgb(247,247,255);')
+        self.tab4.setStyleSheet('background-color: rgb(247,255,255);')
+
     ###################################################################################
     ######################### ВКЛАДКА СОЗДАНИЯ БОЛЬНИЧНОГО ЛИСТА ######################
     ###################################################################################
         frame_tab1 = QFrame(self.tab1)
-        frame_tab1.setFixedWidth(330)
-        frame_tab1.setFixedHeight(250)
+        frame_tab1.setFixedWidth(329)
+        frame_tab1.setFixedHeight(240)
         frame_tab1.move(mainWindowW//2-frame_tab1.width()//2,mainWindowH//2-frame_tab1.height())
         frame_tab1.setFrameStyle(QFrame.Shape.StyledPanel)
+        frame_tab1.setStyleSheet('background-color: white;')
 
         # поле поиска и выбора учителя
         lbl_find = QLabel(frame_tab1)
@@ -150,8 +156,8 @@ class MainWindow(QMainWindow):
         frame_tab2.setFixedWidth(800)
         frame_tab2.setFixedHeight(350)
         frame_tab2.move(mainWindowW // 2 - frame_tab2.width() // 2, mainWindowH // 2 - int(frame_tab2.height()/1.5))
-        frame_tab2.setLineWidth(5)
         frame_tab2.setFrameStyle(QFrame.Shape.StyledPanel)
+        frame_tab2.setStyleSheet('background-color: white;')
 
         # выбор учителя для замены
         lbl_find_2 = QLabel(frame_tab2)
@@ -324,11 +330,48 @@ class MainWindow(QMainWindow):
     ##################### ВКЛАДКА ВЫВОДА ЖУРНАЛА БОЛЬНИЧНЫХ ЛИСТОВ ####################
     ###################################################################################
 
+        # выбор даты начала фильтра
+        lbl_filtr_bolnishniy_dateStart = QLabel(self.tab3)
+        lbl_filtr_bolnishniy_dateStart.setText('Начало: ')
+        lbl_filtr_bolnishniy_dateStart.move(30, 32)
+        lbl_filtr_bolnishniy_dateStart.setFixedWidth(70)
+
+        self.filtr_bolnishniy_dateStart = QDateEdit(self.tab3, calendarPopup=True)
+        self.filtr_bolnishniy_dateStart.move(80, 30)
+        self.filtr_bolnishniy_dateStart.setFixedWidth(100)
+        self.filtr_bolnishniy_dateStart.setDate(QDate.currentDate())
+
+        # выбор даты окончания фильтра
+        lbl_filtr_bolnishniy_dateEnd = QLabel(self.tab3)
+        lbl_filtr_bolnishniy_dateEnd.move(230, 32)
+        lbl_filtr_bolnishniy_dateEnd.setText('Окончание: ')
+        lbl_filtr_bolnishniy_dateEnd.setFixedWidth(70)
+
+        self.filtr_bolnishniy_dateEnd = QDateEdit(self.tab3, calendarPopup=True)
+        self.filtr_bolnishniy_dateEnd.move(300, 30)
+        self.filtr_bolnishniy_dateEnd.setFixedWidth(100)
+        self.filtr_bolnishniy_dateEnd.setDate(QDate.currentDate())
+
+        # кнопка применения фильтра
+        okButton = QPushButton(self.tab3)
+        okButton.setText("Применить фильтр")
+        okButton.move(550, 29)
+        okButton.setFixedWidth(150)
+        okButton.clicked.connect(self.filtr_bolnichniy_apply)
+
+
+        # кнопка сброса фильтра
+        okButton = QPushButton(self.tab3)
+        okButton.setText("Сбросить фильтр")
+        okButton.move(750, 29)
+        okButton.setFixedWidth(150)
+        okButton.clicked.connect(self.bolnichniyExcelLoad)
+
         # отслеживание нажатия на вкладку больничного листа или листа с заменами
         self.tabs.currentChanged.connect(self.currentTabNumber)
 
         self.bolnichniy_table = QtWidgets.QTableWidget(self.tab3)
-        self.bolnichniy_table.setGeometry(30, 30, mainWindowW - 60, mainWindowH - 120)
+        self.bolnichniy_table.setGeometry(30, 90, mainWindowW - 60, mainWindowH - 180)
         self.bolnichniy_table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode(1))
         self.bolnichniy_table.setFrameStyle(QTableWidget.Shape.NoFrame)
         self.bolnichniy_table.setStyleSheet('')
@@ -359,6 +402,9 @@ class MainWindow(QMainWindow):
     ###################################################################################
     ######################## ИСПОЛЬЗУЕМЫЕ ФУНКЦИИ И ПРОЦЕДУРЫ #########################
     ###################################################################################
+
+    def filtr_bolnichniy_apply(self):
+        pass
 
     def bolnichniyExcelLoad(self):
         # получение данных из файла со списком больничных листов
@@ -814,7 +860,7 @@ class zamena_add_window(QWidget):
         zamena_add_window.close(self)
 
 app = QApplication(sys.argv)
-app.setWindowIcon(QtGui.QIcon('icon.png'))
+app.setWindowIcon(QtGui.QIcon('../icon.png'))
 
 mainWindowW = 1300
 mainWindowH = 600
